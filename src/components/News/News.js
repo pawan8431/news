@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import PropTypes from "prop-types";
 import NullImage from "../../components/Images/nullImage.png";
@@ -26,9 +26,8 @@ function News(props) {
   const title = capitalize(category);
   document.title = `${title} - News`;
 
-  const updateNews = async () => {
+  const updateNews = useCallback(async () => {
     try {
-     // setLoading(true);
       const response = await axios.get(endpointPath(country, category));
       if (response.status === 200) {
         const parsedData = response.data;
@@ -41,11 +40,11 @@ function News(props) {
     } catch (error) {
       console.error(error);
     }
-  };
+  }, [country, category]);
 
   useEffect(() => {
     updateNews();
-  }, []);
+  }, [updateNews]);
 
   const handleMoreNews = () => {
     setCurrentPage((prevPage) => prevPage + 1);
@@ -58,9 +57,10 @@ function News(props) {
     <>
       {loading ? (
         <Loading />
-      ) : freeApi ? (<>
-        <Header>{header(title)}</Header>
-        <Container className="d-flex justify-content-center mt-4">
+      ) : freeApi ? (
+        <>
+          <Header>{header(title)}</Header>
+          <Container className="d-flex justify-content-center mt-4">
             <Alert variant="danger" className="text-center">
               Oops, looks like you have used the daily API limit. Please try again tomorrow.
             </Alert>
